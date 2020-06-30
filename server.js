@@ -35,5 +35,11 @@ const db = new Database({
     user: process.env.DB_USER,
     password: process.env.DB_PWD,
     database: process.env.DB_NAME,
-    insecureAuth : true
 });
+
+async function mainApp() {
+    let employeeList = await db.query("SELECT * FROM employee");
+    console.log(employeeList);
+}
+
+mainApp();
