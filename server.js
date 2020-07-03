@@ -31,14 +31,15 @@ class Database {
 // Access SQL Database
 const db = new Database({
     host: "localhost",
-    port: 1080,
+    port: 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PWD,
     database: process.env.DB_NAME,
+    insecureAuth : true
 });
 
 async function mainApp() {
-    let employeeList = await db.query("SELECT * FROM employee");
+    let employeeList = await db.query("SELECT * FROM cms_db.employee");
     console.log(employeeList);
 }
 
