@@ -111,15 +111,15 @@ async function mainApp() {
                         value: "view"
                     },
                     {
-                        name: "Add a role",
+                        name: "Add a new role",
                         value: "add"
                     },
                     {
-                        name: "Update a role",
+                        name: "Update an existing role",
                         value: "update"
                     },
                     {
-                        name: "Delete a role",
+                        name: "Delete an existing role",
                         value: "delete"
                     }
                 ]
@@ -127,6 +127,33 @@ async function mainApp() {
         ]) .then ((response) => response.rolesMenu)
     }
 
+    switch (selection) {
+        case "departments":
+        var departmentsMenu = await inquirer.prompt ([
+            {
+                message: "Please select an option below:",
+                name: "departmentsMenu",
+                type: "list",
+                choices: [
+                    {
+                        name: "View existing departments",
+                        value: "view"
+                    },
+                    {
+                        name: "Add a new department",
+                        value: "add"
+                    },
+                    {
+                        name: "Update an existing department",
+                        value: "update"
+                    },
+                    {
+                        name: "Remove an existing department",
+                        value: "remove"
+                    }
+                ]
+            }
+        ]) .then ((response) => response.departmentsMenu)
 
 
 
