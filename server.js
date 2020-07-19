@@ -98,6 +98,37 @@ async function mainApp() {
         ]) .then ((response) => response.employeesMenu)
     }
 
+    switch (selection) {
+        case "roles":
+        var rolesMenu = await inquirer.prompt ([
+            {
+                message: "Please select an option below:",
+                name: "rolesMenu",
+                type: "list",
+                choices: [
+                    {
+                        name: "View existing roles",
+                        value: "view"
+                    },
+                    {
+                        name: "Add a role",
+                        value: "add"
+                    },
+                    {
+                        name: "Update a role",
+                        value: "update"
+                    },
+                    {
+                        name: "Delete a role",
+                        value: "delete"
+                    }
+                ]
+            }
+        ]) .then ((response) => response.rolesMenu)
+    }
+
+
+
 
 }
 
