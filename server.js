@@ -96,6 +96,31 @@ async function mainApp() {
                 ]
             }
         ]) .then ((response) => response.employeesMenu)
+    
+        switch (employeesMenu) {
+            case "view":
+            var viewSelection = await inquirer.prompt([
+                {
+                    message: "How would you like to view employees?",
+                    name: "viewType",
+                    type: "list",
+                    choices: [
+                        {
+                            name: "View all employees",
+                            value: "view"
+                        },
+                        {
+                            name: "View employees by manager",
+                            value: "manager"
+                        },
+                        {
+                            name: "View employees by department",
+                            value: "department"
+                        }
+                    ]
+                }
+            ]) .then((response) => response.viewType)
+        }
     }
 
     switch (selection) {
