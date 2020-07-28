@@ -99,7 +99,7 @@ async function mainApp() {
     
         switch (employeesMenu) {
             case "view":
-            var viewSelection = await inquirer.prompt([
+            var viewType = await inquirer.prompt([
                 {
                     message: "How would you like to view employees?",
                     name: "viewType",
@@ -107,7 +107,7 @@ async function mainApp() {
                     choices: [
                         {
                             name: "View all employees",
-                            value: "view"
+                            value: "all"
                         },
                         {
                             name: "View employees by manager",
@@ -120,6 +120,17 @@ async function mainApp() {
                     ]
                 }
             ]) .then((response) => response.viewType)
+
+            switch (response.viewType) {
+                case "all":
+                var allEmployees = db.query("SELECT * FROM employee", function (err, data){
+                    if (err) throw err;
+                    console.table(data);
+                })
+                case "manager":
+                var employeesByManager;
+
+            }
         }
     }
 
@@ -190,7 +201,9 @@ mainApp();
 
 
 
-
+async function retrieveJoinedTable(selection, table1, table2, column) {
+    this.db.query(`SELECT ${selection} FROM ${table1} LEFT JOIN ${table2} ON ${table1}.${column} = ${table2}.${column}`)
+}
 
 
 
