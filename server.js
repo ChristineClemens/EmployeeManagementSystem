@@ -39,32 +39,23 @@ const db = new Database({
 });
 
 async function mainApp() {
+    //Main menu selection-------------------------------------------------------------------
     const mainMenu = await inquirer.prompt ([
         {
             message: "What would you like to do?",
             name: "mainMenu",
             type: "list",
             choices: [
-                {
-                    name: "Manage Employees",
-                    value: "employees"
-                },
-                {
-                    name: "Manage Roles",
-                    value: "roles"
-                },
-                {
-                    name: "Manage Departments",
-                    value: "departments"
-                },
-                {
-                    name: "Exit",
-                    value: "exit"
-                }
+                {name: "Manage Employees", value: "employees"},
+                {name: "Manage Roles", value: "roles"},
+                {name: "Manage Departments", value: "departments"},
+                {name: "Exit", value: "exit"}
             ]
         }
     ]) .then ((selection) => selection.mainMenu);
 
+    //Employees
+    //Employees selection-------------------------------------------------------------------
     switch (selection) {
         case "employees":
         var employeesMenu = await inquirer.prompt ([
@@ -73,30 +64,16 @@ async function mainApp() {
                 name: "employeesMenu",
                 type: "list",
                 choices: [
-                    {
-                        name: "View existing employees",
-                        value: "view"
-                    },
-                    {
-                        name: "Add a new employee",
-                        value: "add"
-                    },
-                    {
-                        name: "Update an existing employee's role",
-                        value: "update"
-                    },
-                    {
-                        name: "Update an existing employee's manager",
-                        value: "updateManager"
-                    },
-                    {
-                        name: "Remove an existing employee",
-                        value: "remove"
-                    }
+                    {name: "View existing employees", value: "view"},
+                    {name: "Add a new employee", value: "add"},
+                    {name: "Update an existing employee's role", value: "update"},
+                    {name: "Update an existing employee's manager", value: "updateManager"},
+                    {name: "Remove an existing employee", value: "remove"}
                 ]
             }
         ]) .then ((response) => response.employeesMenu)
-    
+        
+        //View employees selection----------------------------------------------------------
         switch (employeesMenu) {
             case "view":
             var viewType = await inquirer.prompt([
@@ -105,22 +82,14 @@ async function mainApp() {
                     name: "viewType",
                     type: "list",
                     choices: [
-                        {
-                            name: "View all employees",
-                            value: "all"
-                        },
-                        {
-                            name: "View employees by manager",
-                            value: "manager"
-                        },
-                        {
-                            name: "View employees by department",
-                            value: "department"
-                        }
+                        {name: "View all employees", value: "all"},
+                        {name: "View employees by manager", value: "manager"},
+                        {name: "View employees by department", value: "department"}
                     ]
                 }
             ]) .then((response) => response.viewType)
 
+            //View all employees------------------------------------------------------------
             switch (response.viewType) {
                 case "all":
                 var allEmployees = db.query("SELECT * FROM employee", function (err, data){
@@ -134,6 +103,7 @@ async function mainApp() {
         }
     }
 
+    //View roles selection-------------------------------------------------------------------
     switch (selection) {
         case "roles":
         var rolesMenu = await inquirer.prompt ([
@@ -142,27 +112,16 @@ async function mainApp() {
                 name: "rolesMenu",
                 type: "list",
                 choices: [
-                    {
-                        name: "View existing roles",
-                        value: "view"
-                    },
-                    {
-                        name: "Add a new role",
-                        value: "add"
-                    },
-                    {
-                        name: "Update an existing role",
-                        value: "update"
-                    },
-                    {
-                        name: "Delete an existing role",
-                        value: "delete"
-                    }
+                    {name: "View existing roles", value: "view"},
+                    {name: "Add a new role", value: "add"},
+                    {name: "Update an existing role", value: "update"},
+                    {name: "Delete an existing role", value: "delete"}
                 ]
             }
         ]) .then ((response) => response.rolesMenu)
     }
 
+    //View departments selection--------------------------------------------------------------
     switch (selection) {
         case "departments":
         var departmentsMenu = await inquirer.prompt ([
@@ -171,27 +130,13 @@ async function mainApp() {
                 name: "departmentsMenu",
                 type: "list",
                 choices: [
-                    {
-                        name: "View existing departments",
-                        value: "view"
-                    },
-                    {
-                        name: "Add a new department",
-                        value: "add"
-                    },
-                    {
-                        name: "Update an existing department",
-                        value: "update"
-                    },
-                    {
-                        name: "Remove an existing department",
-                        value: "remove"
-                    }
+                    {name: "View existing departments", value: "view"},
+                    {name: "Add a new department", value: "add"},
+                    {name: "Update an existing department", value: "update"},
+                    {name: "Remove an existing department", value: "remove"}
                 ]
             }
         ]) .then ((response) => response.departmentsMenu)
-
-
 
 }
 
