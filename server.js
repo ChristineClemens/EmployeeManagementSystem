@@ -92,13 +92,24 @@ async function mainApp() {
             //View all employees------------------------------------------------------------
             switch (response.viewType) {
                 case "all":
-                var allEmployees = db.query("SELECT * FROM employee", function (err, data){
+                var allEmployees = db.query("SELECT * FROM employee", function (err, data) {
                     if (err) throw err;
                     console.table(data);
                 })
                 case "manager":
-                var employeesByManager;
-
+                var employeesByManager = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, m.id FROM employee e INNER JOIN employee m ON m.id = e.manager_id;");
+                managerOptions = managerList.map((selection) => ({
+                    name: selection.name,
+                    value: selection.id,
+                }));
+                var selectedManager = await inquirer.prompt ([
+                    {
+                        message: "Please",
+                        name: "selectedManager",
+                        type: "list",
+                        choices: managerOptions,
+                    }
+                ]) .then ((response) => response.selectedManager)
             }
         }
     }
@@ -164,7 +175,7 @@ async function selectSome(tableName, columnName, searchValue) {
     });
 }
 
-selectOne(tableName, column, value) {
+async function selectOne(tableName, column, value) {
     return new Promise((resolve, reject) => {
         this.connection.query("SELECT * FROM ?? WHERE ?? = ?", [tableName, column, value], function (err, rows) {
             if (err) reject (err)
