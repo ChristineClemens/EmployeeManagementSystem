@@ -52,11 +52,11 @@ async function mainApp() {
                 {name: "Exit", value: "exit"}
             ]
         }
-    ]) .then ((selection) => selection.mainMenu);
+    ]) .then ((mainMenu) => mainMenu.mainMenu);
 
     //Employees-----------------------------------------------------------------------------
     //Employees selection-------------------------------------------------------------------
-    switch (selection) {
+    switch (mainMenu) {
         case "employees":
         var employeesMenu = await inquirer.prompt ([
             {
@@ -71,7 +71,7 @@ async function mainApp() {
                     {name: "Remove an existing employee", value: "remove"}
                 ]
             }
-        ]) .then ((response) => response.employeesMenu)
+        ]) .then ((employeesMenu) => employeesMenu.employeesMenu)
         
         //View employees selection----------------------------------------------------------
         switch (employeesMenu) {
@@ -87,17 +87,17 @@ async function mainApp() {
                         {name: "View employees by department", value: "department"}
                     ]
                 }
-            ]) .then((response) => response.viewType)
+            ]) .then((viewType) => viewType.viewType)
 
             //View all employees------------------------------------------------------------
-            switch (response.viewType) {
+            switch (viewType) {
                 case "all":
-                    console.table(await db.retrieveJoinedTable());
+                    console.table(await retrieveJoinedTable());
                     break;
 
                 //View employees by manager-------------------------------------------------
                 case "manager":
-                    var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, m.id FROM employee e INNER JOIN employee m ON m.id = e.manager_id;");
+                    var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
                     managerOptions = managerOptions.map((selection) => ({
                         name: selection.name,
                         value: selection.id,
@@ -135,6 +135,29 @@ async function mainApp() {
                         break;    
             };
         };
+        //Add employees selection------------------------------------------------------------
+        case "add":
+            var columns;
+            var addEmployee = await inquirer.prompt ([
+                {
+                    message: "What is the employee's first name?",
+                    name: "firstName",
+                    type: "input",
+                    validate: (input) => input != null
+                },
+                {
+                    message: "What is the employee's last name?",
+                    name: "lastName",
+                    type: "list",
+                    validate: (input) => input != null
+                },
+                {
+                    message: "Select the employee's role from the list below:",
+                    name: "employeeRole",
+                    type: "list",
+                    // choices: [{name: "None", value: null}].concat(await db.)
+                }
+            ])
     };   
 
     //Roles----------------------------------------------------------------------------------
@@ -176,7 +199,7 @@ async function mainApp() {
 
 }
 
-mainApp();
+
 
 
 
@@ -236,7 +259,7 @@ async function removeOne(tableName, condition) {
 }
 
 async function retrieveJoinedTable() {
-    return await this.query(`SELECT CONCAT(e.last_name, ', ', employee.first_name) as 'Employee Name',
+    return await db.query(`SELECT CONCAT(employee.last_name, ', ', employee.first_name) as 'Employee Name',
     role.salary as Salary,
     role.title as Role,
     department.name AS 'Department Name',
@@ -247,3 +270,5 @@ async function retrieveJoinedTable() {
     ORDER BY employee.last_name ASC;`)
     };
 };
+
+mainApp();
