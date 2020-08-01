@@ -54,7 +54,7 @@ async function mainApp() {
         }
     ]) .then ((selection) => selection.mainMenu);
 
-    //Employees
+    //Employees-----------------------------------------------------------------------------
     //Employees selection-------------------------------------------------------------------
     switch (selection) {
         case "employees":
@@ -103,6 +103,7 @@ async function mainApp() {
         }
     }
 
+    //Roles----------------------------------------------------------------------------------
     //View roles selection-------------------------------------------------------------------
     switch (selection) {
         case "roles":
@@ -121,6 +122,7 @@ async function mainApp() {
         ]) .then ((response) => response.rolesMenu)
     }
 
+    //Departments-----------------------------------------------------------------------------
     //View departments selection--------------------------------------------------------------
     switch (selection) {
         case "departments":
@@ -144,12 +146,41 @@ mainApp();
 
 
 
-
-
-async function retrieveJoinedTable(selection, table1, table2, column) {
-    this.db.query(`SELECT ${selection} FROM ${table1} LEFT JOIN ${table2} ON ${table1}.${column} = ${table2}.${column}`)
+async function selectAll(tableName) {
+    return new Promise((resolve, reject) => {
+        this.connection.query("SELECT * FROM ??", [tableName], function (err, rows) {
+            if (err) reject(err);
+            resolve(rows);
+        });
+    });
 }
 
+async function selectSome(tableName, columnName, searchValue) {
+    return new Promise((resolve, reject) => {
+        this.connection.query("SELECT * FROM ?? WHERE ?? = ?", [tableName, columnName, searchValue], function (err, rows) {
+            if (err) reject(err);
+            resolve(rows);
+        });
+    });
+}
+
+selectOne(tableName, column, value) {
+    return new Promise((resolve, reject) => {
+        this.connection.query("SELECT * FROM ?? WHERE ?? = ?", [tableName, column, value], function (err, rows) {
+            if (err) reject (err)
+            resolve(rows)
+        })
+    })
+}
+
+async function retrieveJoinedTable(selection, table1, table2, column) {
+    return new Promise((resolve, reject) => {
+        this.db.query(`SELECT ${selection} FROM ${table1} LEFT JOIN ${table2} ON ${table1}.${column} = ${table2}.${column}`, function (err, rows) {
+            if (err) reject(err);
+            resolve(rows);
+        });
+    });
+};
 
 
 async function insertOne(tableName, value) {
