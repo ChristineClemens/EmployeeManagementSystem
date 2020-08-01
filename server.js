@@ -92,10 +92,10 @@ async function mainApp() {
             //View all employees------------------------------------------------------------
             switch (response.viewType) {
                 case "all":
-                var allEmployees = db.query("SELECT * FROM employee", function (err, data) {
-                    if (err) throw err;
-                    console.table(data);
+                    console.table(await db.retrieveJoinedTable());
+                    break;
                 })
+                //View employees by manager-------------------------------------------------
                 case "manager":
                 var employeesByManager = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, m.id FROM employee e INNER JOIN employee m ON m.id = e.manager_id;");
                 managerOptions = managerList.map((selection) => ({
@@ -110,6 +110,7 @@ async function mainApp() {
                         choices: managerOptions,
                     }
                 ]) .then ((response) => response.selectedManager)
+                    var subordinates = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager);
             }
         }
     }
@@ -184,16 +185,6 @@ async function selectOne(tableName, column, value) {
     })
 }
 
-async function retrieveJoinedTable(selection, table1, table2, column) {
-    return new Promise((resolve, reject) => {
-        this.db.query(`SELECT ${selection} FROM ${table1} LEFT JOIN ${table2} ON ${table1}.${column} = ${table2}.${column}`, function (err, rows) {
-            if (err) reject(err);
-            resolve(rows);
-        });
-    });
-};
-
-
 async function insertOne(tableName, value) {
     return new Promise((resolve, reject) => {
         this.connection.query("INSERT INTO ?? SET ?", [tableName, value], function (err, rows) {
@@ -221,3 +212,16 @@ async function removeOne(tableName, condition) {
         });
     });
 }
+
+async function retrieveJoinedTable() {
+    return await this.query(`SELECT CONCAT(e.last_name, ', ', employee.first_name) as 'Employee Name',
+    role.salary as Salary,
+    role.title as Role,
+    department.name AS 'Department Name',
+    CONCAT(manager.last_name, ', ', manager.first_name) AS Manager
+    FROM employee employee
+    LEFT JOIN employee manager ON employee.manager_id = manager.id
+    LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id
+    ORDER BY employee.last_name ASC;`)
+    };
+};
