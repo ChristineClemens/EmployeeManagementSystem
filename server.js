@@ -94,26 +94,48 @@ async function mainApp() {
                 case "all":
                     console.table(await db.retrieveJoinedTable());
                     break;
-                })
+
                 //View employees by manager-------------------------------------------------
                 case "manager":
-                var employeesByManager = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, m.id FROM employee e INNER JOIN employee m ON m.id = e.manager_id;");
-                managerOptions = managerList.map((selection) => ({
-                    name: selection.name,
-                    value: selection.id,
+                    var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, m.id FROM employee e INNER JOIN employee m ON m.id = e.manager_id;");
+                    managerOptions = managerOptions.map((selection) => ({
+                        name: selection.name,
+                        value: selection.id,
                 }));
                 var selectedManager = await inquirer.prompt ([
                     {
-                        message: "Please",
+                        message: "Please select a manager from the list below:",
                         name: "selectedManager",
                         type: "list",
                         choices: managerOptions,
                     }
-                ]) .then ((response) => response.selectedManager)
-                    var subordinates = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager);
-            }
-        }
-    }
+                    ]) .then ((response) => response.selectedManager)
+                        var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager);
+                        console.table(employeesByManager);
+                        break;
+
+                //View employees by department----------------------------------------------
+                case "department":
+                    var columns = `${name, id}`;
+                    var departmentOptions = selectOne(columns, department);
+                    departmentOptions = departmentOptions.map((selection) => ({
+                        name: selection.name,
+                        value: selection.id
+                }));
+                var selectedDepartment = await inquirer.prompt ([
+                    {
+                        message: "Please select a department from the list below:",
+                        name: "selectedDepartment",
+                        type: "list",
+                        choices: departmentOptions
+                    }
+                    ]) .then ((response) => response.selectedDepartment)
+                        var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as Name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?", selectedDepartment);
+                        console.table(employeesByDepartment);
+                        break;    
+            };
+        };
+    };   
 
     //Roles----------------------------------------------------------------------------------
     //View roles selection-------------------------------------------------------------------
@@ -176,9 +198,9 @@ async function selectSome(tableName, columnName, searchValue) {
     });
 }
 
-async function selectOne(tableName, column, value) {
+async function selectOne(columns, table) {
     return new Promise((resolve, reject) => {
-        this.connection.query("SELECT * FROM ?? WHERE ?? = ?", [tableName, column, value], function (err, rows) {
+        this.connection.query("SELECT * FROM ??", [columns, table], function (err, rows) {
             if (err) reject (err)
             resolve(rows)
         })
