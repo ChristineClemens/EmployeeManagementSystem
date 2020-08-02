@@ -3,7 +3,7 @@
 ### Description
 This simple node.js application was designed to provide an easy to use platform for employers to manage their staff and departments effectively. The user is able to select from a series of options that allow them to view, update, add, and remove employees, roles, and departments as they appear in the terminal. 
 
-![alt text]()
+![alt text](https://github.com/ChristineClemens/EmployeeManagementSystem/blob/master/assets/EmployeeManagementSystem.PNG)
 
 ### Table of Contents
 - [Installation](#Installation) 
