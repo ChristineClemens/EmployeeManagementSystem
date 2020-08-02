@@ -122,7 +122,7 @@ async function mainApp() {
                         type: "list",
                         choices: managerOptions,
                     }
-                    ]) .then ((response) => response.list)
+                    ]) .then ((response) => response.selectedManager)
                         var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager); 
                         console.table(employeesByManager);
                         break;
@@ -141,7 +141,7 @@ async function mainApp() {
                         type: "list",
                         choices: departmentOptions
                     }
-                    ]) .then ((response) => response.list)
+                    ]) .then ((response) => response.selectedDepartment)
                         var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?;", selectedDepartment);
                         console.table(employeesByDepartment);
                         break;    
