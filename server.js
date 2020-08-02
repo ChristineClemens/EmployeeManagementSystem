@@ -97,11 +97,11 @@ async function mainApp() {
 
                 //View employees by manager-------------------------------------------------
                 case "manager":
-                    var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
+                    var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
                     managerOptions = managerOptions.map((selection) => ({
                         name: selection.name,
                         value: selection.id,
-                }));
+                    }));
                 var selectedManager = await inquirer.prompt ([
                     {
                         message: "Please select a manager from the list below:",
@@ -110,14 +110,13 @@ async function mainApp() {
                         choices: managerOptions,
                     }
                     ]) .then ((response) => response.list)
-                        var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager);
+                        var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS Name FROM employee WHERE manager_id = ?", selectedManager); 
                         console.table(employeesByManager);
                         break;
 
                 //View employees by department----------------------------------------------
                 case "department":
-                    var columns = `${name, id}`;
-                    var departmentOptions = selectOne(columns, department);
+                    var departmentOptions = await db.query("SELECT name, id FROM department");
                     departmentOptions = departmentOptions.map((selection) => ({
                         name: selection.name,
                         value: selection.id
@@ -130,21 +129,19 @@ async function mainApp() {
                         choices: departmentOptions
                     }
                     ]) .then ((response) => response.list)
-                        var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as Name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?", selectedDepartment);
+                        var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as Name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?;", selectedDepartment);
                         console.table(employeesByDepartment);
                         break;    
                 };
-                break;
             };
-        break;
         //Add employees selection------------------------------------------------------------
         case "add":
-            var departmentOptions = selectOne(columns, role);
+            var departmentOptions = await db.query("SELECT name, id FROM department");
             departmentOptions = departmentOptions.map((selection) => ({
                 name: selection.title,
                 value: selection.id
             }));
-            var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
+            var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
                     managerOptions = managerOptions.map((selection) => ({
                         name: selection.name,
                         value: selection.id,
@@ -159,7 +156,7 @@ async function mainApp() {
                 {
                     message: "What is the employee's last name?",
                     name: "lastName",
-                    type: "list",
+                    type: "input",
                     validate: (input) => input != null
                 },
                 {
@@ -388,9 +385,9 @@ async function selectSome(tableName, columnName, searchValue) {
     });
 }
 
-async function selectOne(columns, table) {
+async function selectOne(tableName, columnName) {
     return new Promise((resolve, reject) => {
-        this.connection.query("SELECT * FROM ??", [columns, table], function (err, rows) {
+        this.connection.query("SELECT * FROM ??", [tableName, columnName], function (err, rows) {
             if (err) reject (err)
             resolve(rows)
         })
