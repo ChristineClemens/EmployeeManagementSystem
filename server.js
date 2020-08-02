@@ -109,7 +109,7 @@ async function mainApp() {
                         type: "list",
                         choices: managerOptions,
                     }
-                    ]) .then ((response) => response.selectedManager)
+                    ]) .then ((response) => response.list)
                         var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager);
                         console.table(employeesByManager);
                         break;
@@ -129,7 +129,7 @@ async function mainApp() {
                         type: "list",
                         choices: departmentOptions
                     }
-                    ]) .then ((response) => response.selectedDepartment)
+                    ]) .then ((response) => response.list)
                         var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as Name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?", selectedDepartment);
                         console.table(employeesByDepartment);
                         break;    
@@ -252,7 +252,7 @@ async function mainApp() {
 
     //Roles----------------------------------------------------------------------------------
     //Roles selection------------------------------------------------------------------------
-    switch (selection) {
+    switch (mainMenu) {
         case "roles":
             var rolesMenu = await inquirer.prompt ([
                 {
@@ -319,14 +319,12 @@ async function mainApp() {
                 ]);
                 break;
             }
-        break;
-        }
-                
-    }
+            break;
+        };
 
     //Departments-----------------------------------------------------------------------------
-    //View departments selection--------------------------------------------------------------
-    switch (selection) {
+    //Departments selection-------------------------------------------------------------------
+    switch (mainMenu) {
         case "departments":
             var departmentOptions = selectOne(columns, department);
             departmentOptions = departmentOptions.map((selection) => ({
@@ -341,14 +339,30 @@ async function mainApp() {
                 choices: [
                     {name: "View existing departments", value: "view"},
                     {name: "Add a new department", value: "add"},
-                    {name: "Update an existing department", value: "update"},
-                    {name: "Remove an existing department", value: "remove"}
                 ]
             }
         ]) .then ((response) => response.departmentsMenu)
-    }
-}
 
+        //View departments selection----------------------------------------------------------
+        switch (departmentsMenu) {
+            case "view":
+                console.table(await db.query("SELECT name FROM department"));
+                break;
+            
+            //Add departments selection-------------------------------------------------------
+            case "add":
+                let addDepartment = await inquirer.prompt([
+                    {
+                        message: "Please enter the new department name:",
+                        name: "name",
+                        type: "input"
+                    }
+                ]) .then((response) => response.name);
+                    await db.query("INSERT INTO department (name) VALUES (?)", [addDepartment]);
+                    break;
+                }
+                break;
+            }
 
 
 
