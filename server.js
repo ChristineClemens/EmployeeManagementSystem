@@ -66,7 +66,7 @@ async function mainApp() {
                 choices: [
                     {name: "View existing employees", value: "view"},
                     {name: "Add a new employee", value: "add"},
-                    {name: "Update an existing employee's role", value: "update"},
+                    {name: "Update an existing employee's role", value: "updateRole"},
                     {name: "Update an existing employee's manager", value: "updateManager"},
                     {name: "Remove an existing employee", value: "remove"}
                 ]
@@ -137,7 +137,17 @@ async function mainApp() {
         };
         //Add employees selection------------------------------------------------------------
         case "add":
-            var columns;
+            var columns = `${name, id}`;
+            var departmentOptions = selectOne(columns, role);
+            departmentOptions = departmentOptions.map((selection) => ({
+                name: selection.title,
+                value: selection.id
+            }));
+            var managerOptions = db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS Name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
+                    managerOptions = managerOptions.map((selection) => ({
+                        name: selection.name,
+                        value: selection.id,
+                }));
             var addEmployee = await inquirer.prompt ([
                 {
                     message: "What is the employee's first name?",
@@ -155,34 +165,77 @@ async function mainApp() {
                     message: "Select the employee's role from the list below:",
                     name: "employeeRole",
                     type: "list",
-                    // choices: [{name: "None", value: null}].concat(await db.)
+                    choices: departmentOptions
+                },
+                {
+                    message: "Select the employee's manager from the list below:",
+                    name: "employeeManager",
+                    type: "list",
+                    choices: managerOptions
                 }
-            ])
+            ]);
+            await db.query("INSERT INTO employee SET ?", addEmployee);
+                console.table(await db.retrieveJoinedTable());
+                break;
+
+        //Update employee section------------------------------------------------------------        
+        case "updateRole":
+            let employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
+            let roles = await this.query("SELECT title, id FROM role")
+            roles = roles.map(i => ({value: i.id, name: i.title}))
+
+            employeeRoleUpdate = await inquirer.prompt([
+                {
+                    message: "Please select the employee that you'd like to update:",
+                    name: "employeeSelection",
+                    type: "list",
+                    choices: employees
+                },
+                {
+                    message: "Please select the role that you'd like to assign this employee:",
+                    name: "rolesSelection",
+                    type: "list",
+                    choices: roles
+                }
+            ]);
+            updatedEmployeeRole = await db.query("UPDATE employee SET role_id = ? WHERE id = ?", [
+                employeeRoleUpdate.role_id,
+                employeeRoleUpdate.employee_id,
+            ]);
+            console.table(await db.getJoinedTable());
+            break;
+
     };   
 
     //Roles----------------------------------------------------------------------------------
     //View roles selection-------------------------------------------------------------------
     switch (selection) {
-        case "roles":
-        var rolesMenu = await inquirer.prompt ([
-            {
-                message: "Please select an option below:",
-                name: "rolesMenu",
-                type: "list",
-                choices: [
-                    {name: "View existing roles", value: "view"},
-                    {name: "Add a new role", value: "add"},
-                    {name: "Update an existing role", value: "update"},
-                    {name: "Delete an existing role", value: "delete"}
-                ]
-            }
-        ]) .then ((response) => response.rolesMenu)
+        case "updateRole":
+            var rolesMenu = await inquirer.prompt ([
+                {
+                    message: "Please select an option below:",
+                    name: "rolesMenu",
+                    type: "list",
+                    choices: [
+                        {name: "View existing roles", value: "view"},
+                        {name: "Add a new role", value: "add"},
+                        {name: "Update an existing role", value: "update"},
+                        {name: "Delete an existing role", value: "delete"}
+                    ]
+                }
+            ]) .then ((response) => response.rolesMenu)
     }
 
     //Departments-----------------------------------------------------------------------------
     //View departments selection--------------------------------------------------------------
     switch (selection) {
         case "departments":
+            var departmentOptions = selectOne(columns, department);
+            departmentOptions = departmentOptions.map((selection) => ({
+                name: selection.department,
+                value: selection.id
+        }));            
         var departmentsMenu = await inquirer.prompt ([
             {
                 message: "Please select an option below:",
