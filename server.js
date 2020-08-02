@@ -101,50 +101,49 @@ async function mainApp() {
                 }
             ]) .then((viewType) => viewType.viewType)
 
-            //View all employees------------------------------------------------------------
-            switch (viewType) {
-                case "all":
-                    console.table(await retrieveJoinedTable());
+        //View all employees------------------------------------------------------------
+        switch (viewType) {
+            case "all":
+                console.table(await retrieveJoinedTable());
+                break;
+
+            //View employees by manager-------------------------------------------------
+            case "manager":
+                var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
+                managerOptions = managerOptions.map((selection) => ({
+                    name: selection.name,
+                    value: selection.id,
+                }));
+            var selectedManager = await inquirer.prompt ([
+                {
+                    message: "Please select a manager from the list below:",
+                    name: "selectedManager",
+                    type: "list",
+                    choices: managerOptions,
+                }
+                ]) .then ((response) => response.list)
+                    var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager); 
+                    console.table(employeesByManager);
                     break;
 
-                //View employees by manager-------------------------------------------------
-                case "manager":
-                    var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS name, manager.id FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
-                    managerOptions = managerOptions.map((selection) => ({
-                        name: selection.name,
-                        value: selection.id,
-                    }));
-                var selectedManager = await inquirer.prompt ([
-                    {
-                        message: "Please select a manager from the list below:",
-                        name: "selectedManager",
-                        type: "list",
-                        choices: managerOptions,
-                    }
-                    ]) .then ((response) => response.list)
-                        var employeesByManager = await db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee WHERE manager_id = ?", selectedManager); 
-                        console.table(employeesByManager);
-                        break;
-
-                //View employees by department----------------------------------------------
-                case "department":
-                    var departmentOptions = await db.query("SELECT name, id FROM department");
-                    departmentOptions = departmentOptions.map((selection) => ({
-                        name: selection.name,
-                        value: selection.id
-                }));
-                var selectedDepartment = await inquirer.prompt ([
-                    {
-                        message: "Please select a department from the list below:",
-                        name: "selectedDepartment",
-                        type: "list",
-                        choices: departmentOptions
-                    }
-                    ]) .then ((response) => response.list)
-                        var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?;", selectedDepartment);
-                        console.table(employeesByDepartment);
-                        break;    
-                };
+            //View employees by department----------------------------------------------
+            case "department":
+                var departmentOptions = await db.query("SELECT name, id FROM department");
+                departmentOptions = departmentOptions.map((selection) => ({
+                    name: selection.name,
+                    value: selection.id
+            }));
+            var selectedDepartment = await inquirer.prompt ([
+                {
+                    message: "Please select a department from the list below:",
+                    name: "selectedDepartment",
+                    type: "list",
+                    choices: departmentOptions
+                }
+                ]) .then ((response) => response.list)
+                    var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?;", selectedDepartment);
+                    console.table(employeesByDepartment);
+                    break;    
             };
         //Add employees selection------------------------------------------------------------
         case "add":
@@ -187,11 +186,13 @@ async function mainApp() {
 
         //Update employee section------------------------------------------------------------        
         case "updateRole":
-            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
-            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
-            var roles = await this.query("SELECT title, id FROM role")
-            roles = roles.map(i => ({value: i.id, name: i.title}))
-
+            var employees = await db.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(index => ({name: index["CONCAT(first_name, ' ', last_name)"], value: index.id}))
+            var roles = await db.query("SELECT title, id FROM role")
+                roles = roles.map(selection => ({
+                    value: selection.id, 
+                    name: selection.title
+                }));
             var employeeRoleUpdate = await inquirer.prompt([
                 {
                     message: "Please select the employee that you'd like to update:",
@@ -210,13 +211,13 @@ async function mainApp() {
                 employeeRoleUpdate.role_id,
                 employeeRoleUpdate.employee_id,
             ]);
-            console.table( await getJoinedTable());
+            console.table(await retrieveJoinedTable());
             break;
         
         //Update employee manager seleciton--------------------------------------------------
         case "updateManager":
-            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
-            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
+            var employees = await db.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(index => ({name: index["CONCAT(first_name, ' ', last_name)"], value: index.id}))
             var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS name, manager.id AS value FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
             var employeeManagerUpdate = await inquirer.prompt([
                 {
@@ -236,27 +237,26 @@ async function mainApp() {
                 employeeManagerUpdate.manager_id,
                 employeeManagerUpdate.employee_id,
             ]);
-            console.table(await db.getJoinedTable());
+            console.table(await retrieveJoinedTable());
             break;
         
         //Remove employee selection----------------------------------------------------------
         case "remove":
-            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
-            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
+            var employees = await db.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(index => ({name: index["CONCAT(first_name, ' ', last_name)"], value: index.id}))
             var removeEmployee = await inquirer.prompt([
                 {
                     message: "Which employee would you like to terminate?",
-                    name: "employeeSelection",
+                    name: "employee_id",
                     type: "list",
                     choices: employees,
                 }
             ]);
-                removedEmployee = await db.query("DELETE FROM employee WHERE id = ?", [
-                    removeEmployee.employee_id,
-            ]);
+            await db.query("DELETE FROM employee WHERE id = ?", [removeEmployee.employee_id,]);
+            console.log(`This employee has been succesfully removed from the employee roster.`)
             break;
-    };   
-
+        };   
+    };
     //Roles----------------------------------------------------------------------------------
     //Roles selection------------------------------------------------------------------------
     switch (mainMenu) {
@@ -287,31 +287,29 @@ async function mainApp() {
                 var addRoles = await inquirer.prompt([
                     {
                         message: "Please enter the new role name:",
-                        name: "roleName",
+                        name: "title",
                         type: "input"
                     },
                     {
                         message: "Please enter the new role salary:",
-                        name: "roleSalary",
+                        name: "salary",
                         type: "input",
                         validate: (inp) => Number.isInteger(parseInt(inp))
                     },
                     {
                         message: "Please select the department in which this role will be available:",
-                        name: "roleDepartment",
+                        name: "department_id",
                         type: "list",
                         choices: roleDepartment
                     },
                 ]);
-                await db.query(
-                    "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
-                    [addRoles.title, addRoles.salary, addRoles.department_id]
-                );
+                await db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [addRoles.title, addRoles.salary, addRoles.department_id]);
+                console.log(`This role has been successfully added to the roles list.`)
                 break;
             
             //Remove roles selection----------------------------------------------------------
             case "remove":
-                var roles = await this.query("SELECT title, id FROM role")
+                var roles = await db.query("SELECT title, id FROM role")
                 roles = roles.map(i => ({value: i.id, name: i.title}))
                 var removeRole = await inquirer.prompt([
                     {
@@ -325,10 +323,8 @@ async function mainApp() {
                         removeRole.id
                 ]);
                 break;
-            }
-            break;
+            };
         };
-
     //Departments-----------------------------------------------------------------------------
     //Departments selection-------------------------------------------------------------------
     switch (mainMenu) {
