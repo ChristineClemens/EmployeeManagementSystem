@@ -310,18 +310,17 @@ async function mainApp() {
             //Remove roles selection----------------------------------------------------------
             case "remove":
                 var roles = await db.query("SELECT title, id FROM role")
-                roles = roles.map(i => ({value: i.id, name: i.title}))
+                roles = roles.map(index => ({value: index.id, name: index.title}))
                 var removeRole = await inquirer.prompt([
                     {
                         message: "Which role would you like to remove?",
-                        name: "roleSelection",
+                        name: "role_id",
                         type: "list",
                         choices: roles
                     }
                 ]);
-                    removedRole = await db.query("DELETE FROM role WHERE id = ?", [
-                        removeRole.id
-                ]);
+                await db.query("DELETE FROM role WHERE id = ?", [removeRole.role_id]);
+                console.log(`This role has been successfully removed from the roles list.`)
                 break;
             };
         };
