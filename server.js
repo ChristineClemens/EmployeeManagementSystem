@@ -206,7 +206,7 @@ async function mainApp() {
             console.table(await db.getJoinedTable());
             break;
         
-        //Update employee manager------------------------------------------------------------
+        //Update employee manager seleciton--------------------------------------------------
         case "updateManager":
             var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
             employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
@@ -231,12 +231,29 @@ async function mainApp() {
             ]);
             console.table(await db.getJoinedTable());
             break;
+        
+        //Remove employee selection----------------------------------------------------------
+        case "remove":
+            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
+            var removeEmployee = await inquirer.prompt([
+                {
+                    message: "Which employee would you like to terminate?",
+                    name: "employeeSelection",
+                    type: "list",
+                    choices: employees,
+                }
+            ]);
+                removedEmployee = await db.query("DELETE FROM employee WHERE id = ?", [
+                    removeEmployee.employee_id,
+            ]);
+            break;
     };   
 
     //Roles----------------------------------------------------------------------------------
-    //View roles selection-------------------------------------------------------------------
+    //Roles selection------------------------------------------------------------------------
     switch (selection) {
-        case "updateRole":
+        case "roles":
             var rolesMenu = await inquirer.prompt ([
                 {
                     message: "Please select an option below:",
@@ -245,11 +262,66 @@ async function mainApp() {
                     choices: [
                         {name: "View existing roles", value: "view"},
                         {name: "Add a new role", value: "add"},
-                        {name: "Update an existing role", value: "update"},
-                        {name: "Delete an existing role", value: "delete"}
+                        {name: "Remove an existing role", value: "remove"}
                     ]
                 }
             ]) .then ((response) => response.rolesMenu)
+        
+        //View roles selection----------------------------------------------------------------
+        switch (rolesMenu) {
+            case "view":
+                var viewRoles = await db.query("SELECT title as Title, salary as Salary, department.name as Department FROM role INNER JOIN department ON department_id = department.id ORDER BY department.name ASC, salary DESC;");
+                console.table(viewRoles);
+                break;
+        
+            //Add roles selection-------------------------------------------------------------
+            case "add":
+                var roleDepartment = await db.query("SELECT name, id AS value FROM department")
+                var addRoles = await inquirer.prompt([
+                    {
+                        message: "Please enter the new role name:",
+                        name: "roleName",
+                        type: "input"
+                    },
+                    {
+                        message: "Please enter the new role salary:",
+                        name: "roleSalary",
+                        type: "input",
+                        validate: (inp) => Number.isInteger(parseInt(inp))
+                    },
+                    {
+                        message: "Please select the department in which this role will be available:",
+                        name: "roleDepartment",
+                        type: "list",
+                        choices: roleDepartment
+                    },
+                ]);
+                await db.query(
+                    "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+                    [addRoles.title, addRoles.salary, addRoles.department_id]
+                );
+                break;
+            
+            //Remove roles selection----------------------------------------------------------
+            case "remove":
+                var roles = await this.query("SELECT title, id FROM role")
+                roles = roles.map(i => ({value: i.id, name: i.title}))
+                var removeRole = await inquirer.prompt([
+                    {
+                        message: "Which role would you like to remove?",
+                        name: "roleSelection",
+                        type: "list",
+                        choices: roles
+                    }
+                ]);
+                    removedRole = await db.query("DELETE FROM role WHERE id = ?", [
+                        removeRole.id
+                ]);
+                break;
+            }
+        break;
+        }
+                
     }
 
     //Departments-----------------------------------------------------------------------------
@@ -274,7 +346,7 @@ async function mainApp() {
                 ]
             }
         ]) .then ((response) => response.departmentsMenu)
-
+    }
 }
 
 
