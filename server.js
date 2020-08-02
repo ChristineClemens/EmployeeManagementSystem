@@ -133,11 +133,12 @@ async function mainApp() {
                         var employeesByDepartment = await db.query("SELECT CONCAT(first_name, ' ', last_name) as Name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department.id = ?", selectedDepartment);
                         console.table(employeesByDepartment);
                         break;    
+                };
+                break;
             };
-        };
+        break;
         //Add employees selection------------------------------------------------------------
         case "add":
-            var columns = `${name, id}`;
             var departmentOptions = selectOne(columns, role);
             departmentOptions = departmentOptions.map((selection) => ({
                 name: selection.title,
@@ -434,7 +435,7 @@ async function retrieveJoinedTable() {
     LEFT JOIN employee manager ON employee.manager_id = manager.id
     LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id
     ORDER BY employee.last_name ASC;`)
-    };
 };
+
 
 mainApp();
