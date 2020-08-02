@@ -21,18 +21,21 @@ VALUES ("ESL Instructor", 35000, (SELECT id FROM department WHERE name = "ESL In
        ("Assistant Director of Studies", 60000, (SELECT id FROM department WHERE name = "Directors"));
        
 INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Christine", "Clemens", (SELECT id FROM role WHERE title = "ESL Instructor")), 
-       ("Matthew", "Ciraulo", (SELECT id FROM role WHERE title = "Pathways Instructor")), 
-       ("Marijke", "De Looze", (SELECT id FROM role WHERE title = "DELTA Trainer")),
-	   ("Dave", "Jameson", (SELECT id FROM role WHERE title = "IELTS Instructor")), 
-       ("Sayaka", "Yamamoto", (SELECT id FROM role WHERE title = "Homestay Coordinator")), 
-       ("Stephen", "Birek", (SELECT id FROM role WHERE title = "Orientation Supervisor")),
-       ("Deborah", "Primeau", (SELECT id FROM role WHERE title = "ESL Instructor")), 
-       ("Elyse", "Caplan", (SELECT id FROM role WHERE title = "ESL Instructor")), 
-       ("Vernon", "Finney", (SELECT id FROM role WHERE title = "ESL Instructor"));
+VALUES ("John", "Friel", (SELECT id FROM role WHERE title = "Director of Studies")),
+       ("Paola", "Rizzi", (SELECT id FROM role WHERE title = "Assistant Director of Studies")),
+       ("Vanessa", "Di Maria", (SELECT id FROM role WHERE title = "Assistant Director of Studies")),
+       ("Ashley Louise", "Brown", (SELECT id FROM role WHERE title = "Assistant Director of Studies"));
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("John", "Friel", (SELECT id FROM role WHERE title = "Director of Studies"), 1),
-       ("Paola", "Rizzi", (SELECT id FROM role WHERE title = "Assistant Director of Studies"), 2),
-       ("Vanessa", "Di Maria", (SELECT id FROM role WHERE title = "Assistant Director of Studies"), 3),
-       ("Ashley Louise", "Brown", (SELECT id FROM role WHERE title = "Assistant Director of Studies"), 4);
+VALUES ("Christine", "Clemens", (SELECT id FROM role WHERE title = "ESL Instructor"), 1), 
+       ("Matthew", "Ciraulo", (SELECT id FROM role WHERE title = "Pathways Instructor"), 2), 
+       ("Marijke", "De Looze", (SELECT id FROM role WHERE title = "DELTA Trainer"), 1),
+	   ("Dave", "Jameson", (SELECT id FROM role WHERE title = "IELTS Instructor"), 3), 
+       ("Sayaka", "Yamamoto", (SELECT id FROM role WHERE title = "Homestay Coordinator"), 1), 
+       ("Stephen", "Birek", (SELECT id FROM role WHERE title = "Orientation Supervisor"), 1),
+       ("Deborah", "Primeau", (SELECT id FROM role WHERE title = "ESL Instructor"), 1), 
+       ("Elyse", "Caplan", (SELECT id FROM role WHERE title = "ESL Instructor"), 1), 
+       ("Vernon", "Finney", (SELECT id FROM role WHERE title = "ESL Instructor"), 1);
+
+
+
