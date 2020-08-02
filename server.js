@@ -328,11 +328,11 @@ async function mainApp() {
     //Departments selection-------------------------------------------------------------------
     switch (mainMenu) {
         case "departments":
-            var departmentOptions = selectOne(columns, department);
-            departmentOptions = departmentOptions.map((selection) => ({
-                name: selection.department,
-                value: selection.id
-        }));            
+        //     var departmentOptions = selectOne(columns, department);
+        //     departmentOptions = departmentOptions.map((selection) => ({
+        //         name: selection.department,
+        //         value: selection.id
+        // }));            
         var departmentsMenu = await inquirer.prompt ([
             {
                 message: "Please select an option below:",
@@ -361,6 +361,7 @@ async function mainApp() {
                     }
                 ]) .then((response) => response.name);
                     await db.query("INSERT INTO department (name) VALUES (?)", [addDepartment]);
+                    console.log(`This department has been successfull added to the departments list.`)
                     break;
         //Exit to main menu--------------------------------------------------------------
         case "exit":
