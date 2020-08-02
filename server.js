@@ -180,12 +180,12 @@ async function mainApp() {
 
         //Update employee section------------------------------------------------------------        
         case "updateRole":
-            let employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
             employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
-            let roles = await this.query("SELECT title, id FROM role")
+            var roles = await this.query("SELECT title, id FROM role")
             roles = roles.map(i => ({value: i.id, name: i.title}))
 
-            employeeRoleUpdate = await inquirer.prompt([
+            var employeeRoleUpdate = await inquirer.prompt([
                 {
                     message: "Please select the employee that you'd like to update:",
                     name: "employeeSelection",
@@ -205,7 +205,32 @@ async function mainApp() {
             ]);
             console.table(await db.getJoinedTable());
             break;
-
+        
+        //Update employee manager------------------------------------------------------------
+        case "updateManager":
+            var employees = await this.query("SELECT CONCAT(first_name, ' ', last_name), id FROM employee")
+            employees = employees.map(i => ({name: i["CONCAT(first_name, ' ', last_name)"], value: i.id}))
+            var managerOptions = await db.query("SELECT DISTINCT CONCAT(manager.first_name, ' ', manager.last_name) AS name, manager.id AS value FROM employee employee INNER JOIN employee manager ON manager.id = employee.manager_id;");
+            var employeeManagerUpdate = await inquirer.prompt([
+                {
+                    message: "Which employee would you like to update?",
+                    name: "employeeSelection",
+                    type: "list",
+                    choices: employees
+                },
+                {
+                    message: "Please select the manager that you'd like to assign this employee:",
+                    name: "managersSelection",
+                    type: "list",
+                    choices: managerOptions
+                }
+            ]);
+            updatedEmployeeManager = await db.query("UPDATE employee SET manager_id = ? WHERE id = ?", [
+                employeeManagerUpdate.manager_id,
+                employeeManagerUpdate.employee_id,
+            ]);
+            console.table(await db.getJoinedTable());
+            break;
     };   
 
     //Roles----------------------------------------------------------------------------------
