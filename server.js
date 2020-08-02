@@ -360,10 +360,12 @@ async function mainApp() {
                 ]) .then((response) => response.name);
                     await db.query("INSERT INTO department (name) VALUES (?)", [addDepartment]);
                     break;
-                }
-                break;
-            }
-
+        //Exit to main menu--------------------------------------------------------------
+        case "exit":
+            db.close();
+        }
+    }
+};
 
 
 
